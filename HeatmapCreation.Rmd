@@ -1,0 +1,387 @@
+---
+title: "Heatmap"
+output: html_document
+date: "2024-12-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+
+```{r}
+library(dplyr)
+library(pheatmap)
+
+```
+
+
+```{r}
+##Call the photosynthetic data
+EA_PFlowerdata <- read.table("EA_Flower_p_combined.tsv", header=TRUE, row.names=1, sep="\t")
+EA_PMycorrhizadata <- read.table("EA_Mycorrhiza_p_combined.tsv", header=TRUE, row.names=1, sep="\t")
+EA_PStemdata <- read.table("EA_Stem_p_combined.tsv", header=TRUE, row.names=1, sep="\t")
+
+NNA_PFlowerdata <- read.table("NNA_Flower_p_combined.tsv", header=TRUE, row.names=1, sep="\t")
+NNA_PMycorrhizadata <- read.table("NNA_Mycorrhiza_p_combined.tsv", header=TRUE, row.names=1, sep="\t")
+NNA_PStemdata <- read.table("NNA_Stem_p_combined.tsv", header=TRUE, row.names=1, sep="\t")
+
+```
+
+```{r}
+#Call the chlorophyll data
+EA_CFlowerdata <- read.table("EA_Flower_c_combined.tsv", header=TRUE, row.names=1, sep="\t")
+EA_CMycorrhizadata <- read.table("EA_Mycorrhiza_c_combined.tsv", header=TRUE, row.names=1, sep="\t")
+EA_CStemdata <- read.table("EA_Stem_c_combined.tsv", header=TRUE, row.names=1, sep="\t")
+
+NNA_CFlowerdata <- read.table("NNA_Flower_c_combined.tsv", header=TRUE, row.names=1, sep="\t")
+NNA_CMycorrhizadata <- read.table("NNA_Mycorrhiza_c_combined.tsv", header=TRUE, row.names=1, sep="\t")
+NNA_CStemdata <- read.table("NNA_Stem_c_combined.tsv", header=TRUE, row.names=1, sep="\t")
+
+```
+
+```{r}
+#Extract the fpkm values for the photosynthetic data
+P_EAFlower_mean <- EA_PFlowerdata[, c("FPKM_Read1", "FPKM_Read2")]
+P_EAStem_mean <-  EA_PStemdata[, c("FPKM_Read1", "FPKM_Read2")]      # Mean expression for Stem tissue
+P_EAMycorrhiza_mean <-  EA_PMycorrhizadata[, c("FPKM_Read1", "FPKM_Read2")]  # Mean expression for Mycorrhiza tissue
+
+P_NNAFlower_mean <-  NNA_PFlowerdata[, c("FPKM_Read1", "FPKM_Read2")]   # Mean expression for Flower tissue
+P_NNAStem_mean <-  NNA_PStemdata[, c("FPKM_Read1", "FPKM_Read2")]      # Mean expression for Stem tissue
+P_NNAMycorrhiza_mean <-  NNA_PMycorrhizadata[, c("FPKM_Read1", "FPKM_Read2")]  # Mean expression for Mycorrhiza tissue
+
+```
+
+
+```{r}
+#Extract for the chlorophyll data
+#Extract the fpkm values for the photosynthetic data
+C_EAFlower_mean <- EA_CFlowerdata[, c("FPKM_Read1", "FPKM_Read2")]
+C_EAStem_mean <-  EA_CStemdata[, c("FPKM_Read1", "FPKM_Read2")]      # Mean expression for Stem tissue
+C_EAMycorrhiza_mean <-  EA_CMycorrhizadata[, c("FPKM_Read1", "FPKM_Read2")]  # Mean expression for Mycorrhiza tissue
+
+C_NNAFlower_mean <-  NNA_CFlowerdata[, c("FPKM_Read1", "FPKM_Read2")]   # Mean expression for Flower tissue
+C_NNAStem_mean <-  NNA_CStemdata[, c("FPKM_Read1", "FPKM_Read2")]      # Mean expression for Stem tissue
+C_NNAMycorrhiza_mean <-  NNA_CMycorrhizadata[, c("FPKM_Read1", "FPKM_Read2")]  # Mean expression for Mycorrhiza tissue
+
+```
+
+```{r}
+# Combine the mean data into one matrix
+EAcombined_photo_data <- cbind(
+  PEAFlower = P_EAFlower_mean,
+  PEAStem = P_EAStem_mean,
+  PEAMycorrhiza = P_EAMycorrhiza_mean
+  
+)
+
+NNAcombined_photo_data <- cbind(
+  PNNAFlower = P_NNAFlower_mean,
+  PNNAStem = P_NNAStem_mean,
+  PNNAMycorrhiza = P_NNAMycorrhiza_mean
+)
+```
+
+```{r}
+#and the same with chloro
+EAcombined_chloro_data <- cbind(
+  CEAFlower = C_EAFlower_mean,
+  CEAStem = C_EAStem_mean,
+  CEAMycorrhiza = C_EAMycorrhiza_mean
+  
+)
+
+NNAcombined_chloro_data <- cbind(
+  CNNAFlower = C_NNAFlower_mean,
+  CNNAStem = C_NNAStem_mean,
+  CNNAMycorrhiza = C_NNAMycorrhiza_mean
+)
+```
+
+```{r}
+
+# Create the heatmap for EA photosythesis
+pheatmap(
+  EAcombined_photo_data,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      #  cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Photosynthtetic Gene Expression of E. aphyllum Heatmap Across Tissues",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+
+
+# Create the heatmap for chlorophyll
+pheatmap(
+  EAcombined_chloro_data,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      #  cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Chlorophyll Synthtesis Gene Expression of E. aphyllum Heatmap Across Tissues",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+```
+
+```{r}
+# Create a heatmap for EA 
+# Open the jpeg device to save the image
+jpeg("EA_HeatmapPhotosynthesisClustered.jpg", width = 800, height = 600, quality = 100)
+
+# Create the heatmap for EA
+pheatmap(
+  EAcombined_photo_data,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      # Do not cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Photosynthtetic Gene Expression of E. aphyllum Heatmap Across Tissues",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+
+# Close the jpeg device and save the image
+dev.off()
+
+# Open the jpeg device to save the image
+jpeg("EA_HeatmapChlorophyllClustered.jpg", width = 800, height = 600, quality = 100)
+
+# Create the heatmap for EA
+pheatmap(
+  EAcombined_chloro_data,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      # Do not cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Chlorophyll Synththesis Gene Expression of E. aphyllum Heatmap Across Tissues",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+
+# Close the jpeg device and save the image
+dev.off()
+```
+
+```{r}
+# Create the heatmap for NNA 
+# Open the jpeg device to save the image
+jpeg("NNA_HeatmapPhotosynthesisClustered.jpg", width = 800, height = 600, quality = 100)
+
+# Create the heatmap for NNA
+pheatmap(
+  NNAcombined_photo_data,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      # Do not cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Photosynthetic Gene Expression of N. nidus-avis Heatmap Across Tissues",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+
+# Close the jpeg device and save the image
+dev.off()
+
+jpeg("NNA_HeatmapChlorophyllClustered.jpg", width = 800, height = 600, quality = 100)
+# Create the heatmap for NNA
+pheatmap(
+  NNAcombined_chloro_data,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      # Do not cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Chlorophyll Synthesis Gene Expression of N. nidus-avis Heatmap Across Tissues",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+
+# Close the jpeg device and save the image
+dev.off()
+```
+```{r}
+#reordered below
+# Flower, Mycorrhiza, Stem expression data for two species
+PFlower_1 <- rowMeans(P_EAFlower_mean)   # Mean expression for Flower tissue in Species 1
+PFlower_2 <- rowMeans(P_NNAFlower_mean)   # Mean expression for Flower tissue in Species 2
+
+PStem_1 <- rowMeans(P_EAStem_mean)      # Mean expression for Stem tissue in Species 1
+PStem_2 <- rowMeans(P_NNAStem_mean)      # Mean expression for Stem tissue in Species 2
+
+PMycorrhiza_1 <- rowMeans(P_EAMycorrhiza_mean)  # Mean expression for Mycorrhiza tissue in Species 1
+PMycorrhiza_2 <- rowMeans(P_NNAMycorrhiza_mean)  # Mean expression for Mycorrhiza tissue in Species 2
+
+
+# Combine the data into one matrix with columns for both species and tissues
+Photo_combined_data_species <- cbind(
+  Flower_Epipogium_aphyllum = PFlower_1,
+  Stem_Epipogium_aphyllum = PStem_1,
+  Mycorrhiza_Epipogium_aphyllum = PMycorrhiza_1,
+  Flower_Neottia_nidus_avis = PFlower_2,
+  Stem_Neottia_nidus_avis = PStem_2,
+  Mycorrhiza_Neottia_nidus_avis = PMycorrhiza_2
+)
+
+# Create the heatmap comparing gene expression across tissues and species
+jpeg("EA_NNA_HeatmapPhotosynthesisReorderedClustered.jpg", width = 800, height = 600, quality = 100)
+
+# Create the heatmap for NNA
+pheatmap(
+  Photo_combined_data_species,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      # Do not cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Photosynthetic Gene Expression in Tissues across Species",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+
+# Close the jpeg device and save the image
+dev.off()
+
+```
+
+```{r}
+##The below is for the BIG heatmap
+# Flower, Mycorrhiza, Stem expression data for two species
+PFlower_1 <- rowMeans(P_EAFlower_mean)   # Mean expression for Flower tissue in Species 1
+PFlower_2 <- rowMeans(P_NNAFlower_mean)   # Mean expression for Flower tissue in Species 2
+
+PStem_1 <- rowMeans(P_EAStem_mean)      # Mean expression for Stem tissue in Species 1
+PStem_2 <- rowMeans(P_NNAStem_mean)      # Mean expression for Stem tissue in Species 2
+
+PMycorrhiza_1 <- rowMeans(P_EAMycorrhiza_mean)  # Mean expression for Mycorrhiza tissue in Species 1
+PMycorrhiza_2 <- rowMeans(P_NNAMycorrhiza_mean)  # Mean expression for Mycorrhiza tissue in Species 2
+
+
+# Combine the data into one matrix with columns for both species and tissues
+Photo_combined_data_species <- cbind(
+  Flower_Epipogium_aphyllum = PFlower_1,
+  Flower_Neottia_nidus_avis = PFlower_2,
+  Stem_Epipogium_aphyllum = PStem_1,
+  Stem_Neottia_nidus_avis = PStem_2,
+   Mycorrhiza_Epipogium_aphyllum = PMycorrhiza_1,
+  Mycorrhiza_Neottia_nidus_avis = PMycorrhiza_2
+)
+
+# Create the heatmap comparing gene expression across tissues and species
+jpeg("EA_NNA_HeatmapPhotosynthesisClustered.jpg", width = 800, height = 600, quality = 100)
+
+# Create the heatmap for NNA
+pheatmap(
+  Photo_combined_data_species,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      # Do not cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Photosynthetic Gene Expression in Tissues across Species",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+
+# Close the jpeg device and save the image
+dev.off()
+
+
+```
+
+```{r}
+##The below is for the BIG heatmap
+# Flower, Mycorrhiza, Stem expression data for two species
+CFlower_1 <- rowMeans(C_EAFlower_mean)   # Mean expression for Flower tissue in Species 1
+CFlower_2 <- rowMeans(C_NNAFlower_mean)   # Mean expression for Flower tissue in Species 2
+
+CStem_1 <- rowMeans(C_EAStem_mean)      # Mean expression for Stem tissue in Species 1
+CStem_2 <- rowMeans(C_NNAStem_mean)      # Mean expression for Stem tissue in Species 2
+
+CMycorrhiza_1 <- rowMeans(C_EAMycorrhiza_mean)  # Mean expression for Mycorrhiza tissue in Species 1
+CMycorrhiza_2 <- rowMeans(C_NNAMycorrhiza_mean)  # Mean expression for Mycorrhiza tissue in Species 2
+
+
+# Combine the data into one matrix with columns for both species and tissues
+Chloro_combined_data_species <- cbind(
+  Flower_Epipogium_aphyllum = CFlower_1,
+  Flower_Neottia_nidus_avis = CFlower_2,
+  Stem_Epipogium_aphyllum = CStem_1,
+  Stem_Neottia_nidus_avis = CStem_2,
+   Mycorrhiza_Epipogium_aphyllum = CMycorrhiza_1,
+  Mycorrhiza_Neottia_nidus_avis = CMycorrhiza_2
+)
+
+# Create the heatmap comparing gene expression across tissues and species
+jpeg("EA_NNA_HeatmapChlorophyllClustered.jpg", width = 800, height = 600, quality = 100)
+
+# Create the heatmap for NNA
+pheatmap(
+  Chloro_combined_data_species,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      # Do not cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Chlorophyll Synthesis Gene Expression in Tissues across Species",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+
+# Close the jpeg device and save the image
+dev.off()
+
+```
+
+```{r}
+#reordered
+# Flower, Mycorrhiza, Stem expression data for two species
+CFlower_1 <- rowMeans(C_EAFlower_mean)   # Mean expression for Flower tissue in Species 1
+CFlower_2 <- rowMeans(C_NNAFlower_mean)   # Mean expression for Flower tissue in Species 2
+
+CStem_1 <- rowMeans(C_EAStem_mean)      # Mean expression for Stem tissue in Species 1
+CStem_2 <- rowMeans(C_NNAStem_mean)      # Mean expression for Stem tissue in Species 2
+
+CMycorrhiza_1 <- rowMeans(C_EAMycorrhiza_mean)  # Mean expression for Mycorrhiza tissue in Species 1
+CMycorrhiza_2 <- rowMeans(C_NNAMycorrhiza_mean)  # Mean expression for Mycorrhiza tissue in Species 2
+
+
+# Combine the data into one matrix with columns for both species and tissues
+Chloro_combined_data_species <- cbind(
+  Flower_Epipogium_aphyllum = CFlower_1,
+  Stem_Epipogium_aphyllum = CStem_1,
+  Mycorrhiza_Epipogium_aphyllum = CMycorrhiza_1,
+  Flower_Neottia_nidus_avis = CFlower_2,
+  Stem_Neottia_nidus_avis = CStem_2,
+  Mycorrhiza_Neottia_nidus_avis = CMycorrhiza_2
+)
+
+# Create the heatmap comparing gene expression across tissues and species
+jpeg("EA_NNA_HeatmapChlorophyllReorderedClustered.jpg", width = 800, height = 600, quality = 100)
+
+# Create the heatmap for NNA
+pheatmap(
+  Chloro_combined_data_species,
+  color = colorRampPalette(c("white", "blue", "purple", "red"))(100),
+  cluster_rows = TRUE,      # Do not cluster genes
+  cluster_cols = FALSE,      # Do not cluster tissues
+  show_rownames = TRUE,      # Show gene names
+  show_colnames = TRUE,      # Show tissue names
+  main = "Chlorophyll Synthesis Gene Expression in Tissues across Species",
+  fontsize_row = 6,          # Adjust the font size of row names (genes)
+  fontsize_col = 8           # Adjust the font size of column names (tissues)
+)
+
+# Close the jpeg device and save the image
+dev.off()
+```
+
+
